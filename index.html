@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GOL Grammar</title>
+</head>
+<body>
+
+</body>
+<script>
+    var width = 500;
+    var height = 500;
+
+    var GameBoard = function(options){
+        var self = this instanceof GameBoard ? this : Object.create(GameBoard.prototype);
+
+        //double check passed in options (yes I have screwed this up before, no this isn't a stupid thing to check)
+        if(options === undefined) throw "must define width and height in passed in object";
+        if(options.width === undefined) throw "must define width";
+        if(options.height === undefined) throw "must define height";
+        if(typeof options.width !== "number") throw "width must be a number";
+        if(typeof options.height !== "number") throw "height must be a number";
+
+        //rename width and height for ease of use
+        var width = options.width;
+        var height = options.height;
+
+        //create the board array
+        var makeBoard = function(){
+            var board = new Array(width);
+            for(var i = 0; i < width; i ++){
+                board[i] = new Array(height);
+                for(var j = 0; j < height; j++){
+                    board[i][j] = {};
+                }
+            }
+            return board;
+        };
+        var currentBoard = makeBoard();
+
+
+        //the rules that we use on the game board
+        var rules = [];
+        self.addRule = function(rule){
+            if(rule === undefined) throw "must give a rule";
+            if(typeof rule !== "object") throw "rule must be an object";
+            if(rule.run === undefined) throw "rule must have a run method";
+            if(typeof rule.run !== "function") throw "rule.run must be a function";
+            rules.push(rule);
+        };
+
+        self.run = function(){
+            //the next board that we populate from running rules on the current board
+            var nextBoard = makeBoard();
+
+            for(var y = 0; y < height; y++){
+                for(var x = 0; x < width; x++){
+                    //run rules on the cell
+                    rules.forEach(function(rule){
+                        var result = rule.run(currentBoard,x,y);
+                        //make sure the result hasn't already been populated
+                        if(result.name === undefined || result.value === undefined) throw "rule isn't complete";
+                        if(nextBoard[x][y][result.name] !== undefined) throw "rule has already been applied";
+                        //set rule in next board
+                        nextBoard[x][y][result.name] = result.value;
+                    })
+                }
+            }
+
+            //set the current board to the one that we've been creating
+            currentBoard = nextBoard;
+        };
+
+        return self;
+    };
+
+    //given a board and an x,y position for a cell, this class will evaluate a given function for each neighbor
+    //basically this is just so that other classes can inherit the prototype and use this (sort of) static method
+    var NeighborChecker = function(options){
+        var self = this instanceof NeighborChecker ? this : Object.create(NeighborChecker.prototype);
+        return self;
+    };
+    NeighborChecker.prototype.checkNeighbors = function(board,cellX,cellY,toEvaluate){
+        //checking because yes i do screw this up
+        if(board === undefined) throw "board is undefined";
+        if(cellX === undefined) throw "x position is undefined";
+        if(cellY === undefined) throw "y position is undefined";
+        if(toEvaluate === undefined) throw "function to evaluate with is undefined";
+
+        //evaluate "toEvaluate" on 3x3 grid (except for the x and y that was passed in)
+        for(var y = cellY - 1; y < cellY + 1; y ++){
+            for(var x = cellX - 1; x < cellX + 1; x++){
+                //make sure board exists out to these coordinates
+                if(board[x] !== undefined && board[x][y] !== undefined){
+                    //this is the current cell, don't evaluate here
+                    if(x === cellX && y === cellY) continue;
+                    toEvaluate(board[x][y])
+                }
+            }
+        }
+    };
+
+    var LiveRule = function(options){
+        var self = this instanceof LiveRule ? this : Object.create(LiveRule.prototype);
+        NeighborChecker.call(self,options);
+
+        var name = "alive";
+
+        var neighborsLiving = 0;
+        var checkNeighborLiving = function(cell){
+            if(cell[name]) neighborsLiving++;
+        };
+
+        self.run = function(board,x,y){
+            self.checkNeighbors(board,x,y,checkNeighborLiving.bind(this));
+            //cell is alive
+            if(board[x][y][name]){
+                //2 to 3 live neighbors, cell lives on
+                if(neighborsLiving >= 2 && neighborsLiving <= 3)
+                    return {name : name, value : true};
+                //cell is dead
+                return {name : name, value : false};
+            }
+            //cell is dead
+            else{
+                //thre neighbors, cell is born
+                if(neighborsLiving === 3)
+                    return {name : name, value : true};
+                //cell is dead
+                return {name : name, value : false};
+            }
+        };
+
+        return self;
+    };
+    LiveRule.prototype = Object.create(NeighborChecker.prototype);
+
+    var board = GameBoard({width :2,height:2})
+    var living = LiveRule();
+    board.addRule(living);
+    board.run();
+
+</script>
+</html>
