@@ -8,6 +8,61 @@
 .fullSize .board{
     overflow:hidden;
 }
+.bottomBar{
+    position:absolute;
+    bottom:0;
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:20px;
+    pointer-events:none;
+}
+.barButton{
+    padding:10px;
+    margin:1px;
+    pointer-events:all;
+    cursor:pointer;
+}
+
+.lowerRight{
+    position:absolute;
+    bottom:0;
+    right:0;
+    font-size:20px;
+}
+
+.optionsButton{
+    padding:10px;
+    margin:1px;
+    cursor:pointer;
+}
+
+.optionsArea{
+    position:absolute;
+    bottom:40px;
+    right:10px;
+}
+
+.optionIcon{
+    width:20px;
+}
+.optionRow{
+    width:150px;
+}
+
+.optionText{
+    margin-left:5px
+}
+
+.point{
+    cursor:pointer;
+}
+
+
+html{
+    font-family: 'Roboto', sans-serif;
+}
 
 table{
     border-collapse:collapse;

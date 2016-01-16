@@ -5,19 +5,46 @@
     <title>GOL Grammar</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <script src="js/board.js" type="text/javascript"></script>
     <script src="js/tableRenderer.js" type="text/javascript"></script>
     <script src="js/neighbor.js" type="text/javascript"></script>
     <script src="js/alive.js" type="text/javascript"></script>
+    <script src="js/ui.js" type="text/javascript"></script>
 </head>
 <body class="fullSize board">
 <div id="gameBoard" class="fullSize board"></div>
 
-<div style="position:absolute;bottom:0;width:100%;display:flex;justify-content:center;align-items:center;font-size:20px">
-    <div style="margin:10px" id="slower"><i></i></div>
-    <div style="margin:10px" id="playPause"><i></i></div>
-    <div style="margin:10px" id="faster"><i></i></div>
-    <div style="margin:10px" id="step"><i></i></div>
+<div class="bottomBar">
+    <div class="barButton" id="slower"><i></i></div>
+    <div class="barButton" id="playPause"><i></i></div>
+    <div class="barButton" id="faster"><i></i></div>
+    <div class="barButton" id="step"><i></i></div>
+</div>
+
+<div class="lowerRight">
+    <div class="optionsButton" id="options"><i class="fa fa-cog"></i></div>
+</div>
+
+<div class="optionsArea" >
+    <div class="optionRow point">
+        <i class="fa fa-eraser optionIcon"></i>
+        <span class="optionText">Clear Board</span>
+    </div>
+    <div class="optionRow">
+        <i class="fa fa-arrows-h optionIcon"></i>
+        <span class="optionText">Grid Width</span>
+    </div>
+    <div class="optionRow">
+        <i class="fa fa-arrows-v optionIcon"></i>
+        <span class="optionText">Grid Height</span>
+    </div>
+    <div class="optionRow point">
+        <i class="fa fa-eye-slash optionIcon"></i>
+        <span class="optionText">Hide Controls</span>
+    </div>
+
+
 </div>
 
 </body>
@@ -43,94 +70,13 @@
     var living = LiveRule();
     board.addRule(living);
 
-
-    var playSpeed = 1;
-    var playState = "paused";
-
-    var buttons = [
-        {
-            element : document.getElementById("playPause"),
-            paused : {
-                class : "fa fa-play",
-                visible : true
-            },
-            playing : {
-                class : "fa fa-pause",
-                visible : true
-            },
-            click : function(){
-                console.log("Play / Pause clicked");
-                playState = playState === "paused" ? "playing" : "paused";
-                setButtonStates(playState);
-            }
-        },
-        {
-            element : document.getElementById("slower"),
-            paused : {
-                visible: true,
-                class : "fa fa-backward"
-            },
-            playing : {
-                visible : true,
-                class : "fa fa-backward"
-            },
-            click : function(){
-                console.log("decrease playing speed");
-            }
-        },
-        {
-            element : document.getElementById("faster"),
-            paused : {
-                visible : true,
-                class : "fa fa-forward"
-            },
-            playing : {
-                visible : true,
-                class : "fa fa-forward"
-            },
-            click : function(){
-                console.log("increase playing speed");
-            }
-        },
-        {
-            element : document.getElementById("step"),
-            paused : {
-                visible : true,
-                class : "fa fa-fast-forward"
-            },
-            playing : {
-                visible : false
-            },
-            click : function(){
-                board.run();
-                renderer.render(board);
-                console.log("step one simulation frame");
-            }
-        }
-    ];
-
-    function setButtonStates(state){
-        buttons.forEach(function(button){
-            button.element.removeChild(button.element.firstChild);
-            var icon = document.createElement("i");
-            if(button[state].visible){
-                icon.className = button[state].class;
-                button.element.visible = true;
-            }
-            else{
-                button.element.visible = false;
-            }
-            button.element.appendChild(icon);
-            button.element.onclick=button.click;
-        });
-    }
-    setButtonStates(playState);
+    var gui = UI();
 
     //main loop
     function render(){
-        if(playState === "playing"){
+        if(gui.isPlaying()){
             var currentTime = Date.now();
-            if(currentTime - startTime >= 1){
+            if(currentTime - startTime >= gui.getFrameDelay()){
                 board.run();
                 renderer.render(board);
                 startTime = currentTime;
