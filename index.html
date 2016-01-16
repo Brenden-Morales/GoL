@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="fullSize">
 <head>
     <meta charset="UTF-8">
     <title>GOL Grammar</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
-<body>
-
+<body class="fullSize board">
 </body>
 <script>
     var width = 500;
@@ -52,7 +52,7 @@
         self.run = function(){
             //the next board that we populate from running rules on the current board
             var nextBoard = makeBoard();
-
+            //loop through all positions in board
             for(var y = 0; y < height; y++){
                 for(var x = 0; x < width; x++){
                     //run rules on the cell
@@ -66,9 +66,13 @@
                     })
                 }
             }
-
             //set the current board to the one that we've been creating
             currentBoard = nextBoard;
+        };
+
+        self.getCell = function(x,y){
+            if(currentBoard[x] === undefined || currentBoard[x][y] === undefined) throw "out of board bounds";
+            return currentBoard[x][y];
         };
 
         return self;
@@ -135,7 +139,75 @@
     };
     LiveRule.prototype = Object.create(NeighborChecker.prototype);
 
-    var board = GameBoard({width :2,height:2})
+    var TableRenderer = function(options){
+        var self = this instanceof TableRenderer ? this : Object.create(TableRenderer.prototype);
+
+        if(options === undefined) throw "must define options";
+        if(options.element === undefined) throw "must define element";
+        if(!options.element instanceof HTMLElement) throw "element not an HTMLElement";
+        if(options.width === undefined || typeof options.width !== "number") throw "width not properly defined";
+        if(options.height === undefined || typeof options.height !== "number") throw "height not properly defined";
+
+        var element = options.element;
+        var width = options.width;
+        var height = options.height;
+
+        var tableElement;
+
+        var makeTable = function(){
+            //clear any content from the table
+            while(element.firstChild){
+                element.removeChild(element.firstChild);
+            }
+            //create the table
+            tableElement = document.createElement("table");
+            tableElement.style.width="100%";
+            tableElement.style.height="100%";
+            element.appendChild(tableElement);
+
+            //create rows
+            for(var y = 0; y < height; y++){
+                var tableRow = document.createElement("tr");
+                //add individual cells
+                for(var x = 0; x < width; x++){
+                    var cell = document.createElement("td");
+                    //iife so x and y don't change
+                    (function(){
+                        var xVal = x;
+                        var yVal = y;
+                        cell.onclick = function(){cellClick(xVal,yVal)};
+                    })();
+                    tableRow.appendChild(cell);
+                }
+                tableElement.appendChild(tableRow);
+            }
+        };
+
+        makeTable();
+
+
+        self.render = function(board){
+
+        };
+
+        return self;
+    };
+
+    cellClick = function(x,y){
+        console.log(x + " " + y);
+    };
+
+    var renderer = new TableRenderer({
+        element : document.body,
+        width : 2,
+        height : 2
+    });
+
+    var board = GameBoard({
+        width :2,
+        height:2,
+        renderer : renderer
+    });
     var living = LiveRule();
     board.addRule(living);
     board.run();
