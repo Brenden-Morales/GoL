@@ -4,213 +4,144 @@
     <meta charset="UTF-8">
     <title>GOL Grammar</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <script src="js/board.js" type="text/javascript"></script>
+    <script src="js/tableRenderer.js" type="text/javascript"></script>
+    <script src="js/neighbor.js" type="text/javascript"></script>
+    <script src="js/alive.js" type="text/javascript"></script>
 </head>
 <body class="fullSize board">
+<div id="gameBoard" class="fullSize board"></div>
+
+<div style="position:absolute;bottom:0;width:100%;display:flex;justify-content:center;align-items:center;font-size:20px">
+    <div style="margin:10px" id="slower"><i></i></div>
+    <div style="margin:10px" id="playPause"><i></i></div>
+    <div style="margin:10px" id="faster"><i></i></div>
+    <div style="margin:10px" id="step"><i></i></div>
+</div>
+
 </body>
 <script>
-    var width = 500;
-    var height = 500;
-
-    var GameBoard = function(options){
-        var self = this instanceof GameBoard ? this : Object.create(GameBoard.prototype);
-
-        //double check passed in options (yes I have screwed this up before, no this isn't a stupid thing to check)
-        if(options === undefined) throw "must define width and height in passed in object";
-        if(options.width === undefined) throw "must define width";
-        if(options.height === undefined) throw "must define height";
-        if(typeof options.width !== "number") throw "width must be a number";
-        if(typeof options.height !== "number") throw "height must be a number";
-
-        //rename width and height for ease of use
-        var width = options.width;
-        var height = options.height;
-
-        //create the board array
-        var makeBoard = function(){
-            var board = new Array(width);
-            for(var i = 0; i < width; i ++){
-                board[i] = new Array(height);
-                for(var j = 0; j < height; j++){
-                    board[i][j] = {};
-                }
-            }
-            return board;
-        };
-        var currentBoard = makeBoard();
-
-
-        //the rules that we use on the game board
-        var rules = [];
-        self.addRule = function(rule){
-            if(rule === undefined) throw "must give a rule";
-            if(typeof rule !== "object") throw "rule must be an object";
-            if(rule.run === undefined) throw "rule must have a run method";
-            if(typeof rule.run !== "function") throw "rule.run must be a function";
-            rules.push(rule);
-        };
-
-        self.run = function(){
-            //the next board that we populate from running rules on the current board
-            var nextBoard = makeBoard();
-            //loop through all positions in board
-            for(var y = 0; y < height; y++){
-                for(var x = 0; x < width; x++){
-                    //run rules on the cell
-                    rules.forEach(function(rule){
-                        var result = rule.run(currentBoard,x,y);
-                        //make sure the result hasn't already been populated
-                        if(result.name === undefined || result.value === undefined) throw "rule isn't complete";
-                        if(nextBoard[x][y][result.name] !== undefined) throw "rule has already been applied";
-                        //set rule in next board
-                        nextBoard[x][y][result.name] = result.value;
-                    })
-                }
-            }
-            //set the current board to the one that we've been creating
-            currentBoard = nextBoard;
-        };
-
-        self.getCell = function(x,y){
-            if(currentBoard[x] === undefined || currentBoard[x][y] === undefined) throw "out of board bounds";
-            return currentBoard[x][y];
-        };
-
-        return self;
-    };
-
-    //given a board and an x,y position for a cell, this class will evaluate a given function for each neighbor
-    //basically this is just so that other classes can inherit the prototype and use this (sort of) static method
-    var NeighborChecker = function(options){
-        var self = this instanceof NeighborChecker ? this : Object.create(NeighborChecker.prototype);
-        return self;
-    };
-    NeighborChecker.prototype.checkNeighbors = function(board,cellX,cellY,toEvaluate){
-        //checking because yes i do screw this up
-        if(board === undefined) throw "board is undefined";
-        if(cellX === undefined) throw "x position is undefined";
-        if(cellY === undefined) throw "y position is undefined";
-        if(toEvaluate === undefined) throw "function to evaluate with is undefined";
-
-        //evaluate "toEvaluate" on 3x3 grid (except for the x and y that was passed in)
-        for(var y = cellY - 1; y < cellY + 1; y ++){
-            for(var x = cellX - 1; x < cellX + 1; x++){
-                //make sure board exists out to these coordinates
-                if(board[x] !== undefined && board[x][y] !== undefined){
-                    //this is the current cell, don't evaluate here
-                    if(x === cellX && y === cellY) continue;
-                    toEvaluate(board[x][y])
-                }
-            }
-        }
-    };
-
-    var LiveRule = function(options){
-        var self = this instanceof LiveRule ? this : Object.create(LiveRule.prototype);
-        NeighborChecker.call(self,options);
-
-        var name = "alive";
-
-        var neighborsLiving = 0;
-        var checkNeighborLiving = function(cell){
-            if(cell[name]) neighborsLiving++;
-        };
-
-        self.run = function(board,x,y){
-            self.checkNeighbors(board,x,y,checkNeighborLiving.bind(this));
-            //cell is alive
-            if(board[x][y][name]){
-                //2 to 3 live neighbors, cell lives on
-                if(neighborsLiving >= 2 && neighborsLiving <= 3)
-                    return {name : name, value : true};
-                //cell is dead
-                return {name : name, value : false};
-            }
-            //cell is dead
-            else{
-                //thre neighbors, cell is born
-                if(neighborsLiving === 3)
-                    return {name : name, value : true};
-                //cell is dead
-                return {name : name, value : false};
-            }
-        };
-
-        return self;
-    };
-    LiveRule.prototype = Object.create(NeighborChecker.prototype);
-
-    var TableRenderer = function(options){
-        var self = this instanceof TableRenderer ? this : Object.create(TableRenderer.prototype);
-
-        if(options === undefined) throw "must define options";
-        if(options.element === undefined) throw "must define element";
-        if(!options.element instanceof HTMLElement) throw "element not an HTMLElement";
-        if(options.width === undefined || typeof options.width !== "number") throw "width not properly defined";
-        if(options.height === undefined || typeof options.height !== "number") throw "height not properly defined";
-
-        var element = options.element;
-        var width = options.width;
-        var height = options.height;
-
-        var tableElement;
-
-        var makeTable = function(){
-            //clear any content from the table
-            while(element.firstChild){
-                element.removeChild(element.firstChild);
-            }
-            //create the table
-            tableElement = document.createElement("table");
-            tableElement.style.width="100%";
-            tableElement.style.height="100%";
-            element.appendChild(tableElement);
-
-            //create rows
-            for(var y = 0; y < height; y++){
-                var tableRow = document.createElement("tr");
-                //add individual cells
-                for(var x = 0; x < width; x++){
-                    var cell = document.createElement("td");
-                    //iife so x and y don't change
-                    (function(){
-                        var xVal = x;
-                        var yVal = y;
-                        cell.onclick = function(){cellClick(xVal,yVal)};
-                    })();
-                    tableRow.appendChild(cell);
-                }
-                tableElement.appendChild(tableRow);
-            }
-        };
-
-        makeTable();
-
-
-        self.render = function(board){
-
-        };
-
-        return self;
-    };
-
-    cellClick = function(x,y){
-        console.log(x + " " + y);
-    };
-
-    var renderer = new TableRenderer({
-        element : document.body,
-        width : 2,
-        height : 2
-    });
 
     var board = GameBoard({
-        width :2,
-        height:2,
-        renderer : renderer
+        width :100,
+        height:100
     });
+
+    var renderer = new TableRenderer({
+        element : document.getElementById("gameBoard"),
+        width : 100,
+        height : 100,
+        click : cellClick
+    });
+
+    function cellClick(x,y){
+        board.setState(x,y,"alive",!board.getCell(x,y)["alive"]);
+        renderer.render(board);
+    }
+
     var living = LiveRule();
     board.addRule(living);
-    board.run();
+
+
+    var playSpeed = 1;
+    var playState = "paused";
+
+    var buttons = [
+        {
+            element : document.getElementById("playPause"),
+            paused : {
+                class : "fa fa-play",
+                visible : true
+            },
+            playing : {
+                class : "fa fa-pause",
+                visible : true
+            },
+            click : function(){
+                console.log("Play / Pause clicked");
+                playState = playState === "paused" ? "playing" : "paused";
+                setButtonStates(playState);
+            }
+        },
+        {
+            element : document.getElementById("slower"),
+            paused : {
+                visible: true,
+                class : "fa fa-backward"
+            },
+            playing : {
+                visible : true,
+                class : "fa fa-backward"
+            },
+            click : function(){
+                console.log("decrease playing speed");
+            }
+        },
+        {
+            element : document.getElementById("faster"),
+            paused : {
+                visible : true,
+                class : "fa fa-forward"
+            },
+            playing : {
+                visible : true,
+                class : "fa fa-forward"
+            },
+            click : function(){
+                console.log("increase playing speed");
+            }
+        },
+        {
+            element : document.getElementById("step"),
+            paused : {
+                visible : true,
+                class : "fa fa-fast-forward"
+            },
+            playing : {
+                visible : false
+            },
+            click : function(){
+                board.run();
+                renderer.render(board);
+                console.log("step one simulation frame");
+            }
+        }
+    ];
+
+    function setButtonStates(state){
+        buttons.forEach(function(button){
+            button.element.removeChild(button.element.firstChild);
+            var icon = document.createElement("i");
+            if(button[state].visible){
+                icon.className = button[state].class;
+                button.element.visible = true;
+            }
+            else{
+                button.element.visible = false;
+            }
+            button.element.appendChild(icon);
+            button.element.onclick=button.click;
+        });
+    }
+    setButtonStates(playState);
+
+    //main loop
+    function render(){
+        if(playState === "playing"){
+            var currentTime = Date.now();
+            if(currentTime - startTime >= 1){
+                board.run();
+                renderer.render(board);
+                startTime = currentTime;
+            }
+        }
+
+        requestAnimationFrame(render);
+    }
+    var startTime = Date.now();
+    render();
+
 
 </script>
 </html>
