@@ -2,7 +2,7 @@
 <html lang="en" class="fullSize">
 <head>
     <meta charset="UTF-8">
-    <title>GOL Grammar</title>
+    <title>GoL</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
@@ -15,7 +15,7 @@
 <body class="fullSize board">
 <div id="gameBoard" class="fullSize board"></div>
 
-<div class="bottomBar">
+<div class="bottomBar" id="mainBar">
     <div class="barButton" id="slower"><i></i></div>
     <div class="barButton" id="playPause"><i></i></div>
     <div class="barButton" id="faster"><i></i></div>
@@ -23,28 +23,40 @@
 </div>
 
 <div class="lowerRight">
-    <div class="optionsButton" id="options"><i class="fa fa-cog"></i></div>
+    <div class="optionsButton" id="options" title="Game Options"><i class="fa fa-cog"></i></div>
 </div>
 
-<div class="optionsArea" >
-    <div class="optionRow point">
-        <i class="fa fa-eraser optionIcon"></i>
-        <span class="optionText">Clear Board</span>
+<div id="optionsArea" class="optionsArea" style="visibility:hidden">
+    <div class="optionRow">
+        <div class="optionText">
+            <i class="fa fa-arrows-h optionIcon"></i>
+            Grid Width
+        </div>
+        <input type="number" id="widthInput" value="100" style="width:50px">
     </div>
     <div class="optionRow">
-        <i class="fa fa-arrows-h optionIcon"></i>
-        <span class="optionText">Grid Width</span>
+        <div class="optionText">
+            <i class="fa fa-arrows-v optionIcon"></i>
+            Grid Height
+        </div>
+        <input type="number" id="heightInput" value="100" style="width:50px">
     </div>
-    <div class="optionRow">
-        <i class="fa fa-arrows-v optionIcon"></i>
-        <span class="optionText">Grid Height</span>
+    <div id="clearBoard" class="optionRow point hoverBold">
+        <div class="optionText">
+            <i class="fa fa-eraser optionIcon"></i>
+            Clear Board
+        </div>
     </div>
-    <div class="optionRow point">
-        <i class="fa fa-eye-slash optionIcon"></i>
-        <span class="optionText">Hide Controls</span>
+    <div id="hideControls" class="optionRow point hoverBold">
+        <div class="optionText">
+            <i id="hideControlsIcon" class="fa fa-eye-slash optionIcon"></i>
+            <span id="hideControlsText">Hide Controls</span>
+        </div>
     </div>
+</div>
 
-
+<div class="speedInfo">
+    <div id="speedText">speed</div>
 </div>
 
 </body>
@@ -70,7 +82,14 @@
     var living = LiveRule();
     board.addRule(living);
 
-    var gui = UI();
+    var gui = UI({
+        width : 100,
+        height : 100,
+        clearBoard : board.clearBoard,
+        render : function(){renderer.render(board)},
+        newTable : renderer.makeNewTable,
+        newBoard : board.makeNewBoard
+    });
 
     //main loop
     function render(){

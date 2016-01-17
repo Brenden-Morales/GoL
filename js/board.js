@@ -28,6 +28,23 @@ var GameBoard = function(options){
     };
     var currentBoard = makeBoard();
 
+    self.clearBoard = function(){
+        for(var x = 0; x < width;x++){
+            for(var y = 0; y < height; y++){
+                currentBoard[x][y] = {};
+            }
+        }
+    };
+
+    self.makeNewBoard = function(newWidth,newHeight){
+        if(newWidth === undefined || typeof newWidth !== "number") throw "improper width";
+        if(newHeight=== undefined || typeof newHeight!== "number") throw "improper height";
+        self.clearBoard();
+        width = newWidth;
+        height = newHeight;
+        currentBoard = makeBoard();
+    };
+
 
     //the rules that we use on the game board
     var rules = [];

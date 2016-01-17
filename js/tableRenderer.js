@@ -20,10 +20,16 @@ var TableRenderer = function(options){
     var tableElement;
 
     //we'll hold references to table cells in here when we make them
-    var cells = new Array(width);
-    for(var i = 0; i < width; i++){
-        cells[i] = new Array(height);
-    }
+    var makeCells = function(){
+        var temp = new Array(width);
+        for(var i = 0; i < width; i++){
+            temp[i] = new Array(height);
+        }
+        return temp;
+    };
+    var cells = makeCells();
+
+
 
     var makeTable = function(){
         //clear any content from the table
@@ -54,8 +60,17 @@ var TableRenderer = function(options){
             tableElement.appendChild(tableRow);
         }
     };
-
     makeTable();
+
+    self.makeNewTable = function(newWidth,newHeight){
+        if(newWidth === undefined || typeof newWidth !== "number") throw "improper width";
+        if(newHeight=== undefined || typeof newHeight!== "number") throw "improper height";
+        width = newWidth;
+        height = newHeight;
+        cells = makeCells();
+        makeTable();
+    };
+
 
 
     self.render = function(board){
@@ -65,6 +80,7 @@ var TableRenderer = function(options){
                 if(board.getCell(x,y)["alive"]){
                     cells[x][y].style["background-color"] = "red";
                 }
+                //cell is dead
                 else{
                     cells[x][y].style["background-color"] = null;
                 }
