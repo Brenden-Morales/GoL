@@ -23,9 +23,10 @@ var UI = function(options) {
     var playState = "paused";
 
     var speedText = document.getElementById("speedText");
-    var setSpeedName = function(){
+    var setSpeedName = function(name){
         speedText.className = null;
-        speedText.innerText = speedNames[playSpeed];
+        if(name === undefined)speedText.innerText = speedNames[playSpeed];
+        else speedText.innerText = name;
         setTimeout(function(){
             speedText.className = "fade-out";
         },1);
@@ -57,6 +58,7 @@ var UI = function(options) {
                 console.log("Play / Pause clicked");
                 playState = playState === "paused" ? "playing" : "paused";
                 setButtonStates(playState);
+                setSpeedName();
             }
         },
         {
@@ -106,7 +108,7 @@ var UI = function(options) {
             click : function(){
                 board.run();
                 renderer.render(board);
-                console.log("step one simulation frame");
+                setSpeedName("Step");
             }
         }
     ];
@@ -191,7 +193,6 @@ var UI = function(options) {
                 height = value;
                 newBoard(width,height);
                 newTable(width,height);
-                console.log("change grid height to " + value);
             }
         }
     };
@@ -204,7 +205,6 @@ var UI = function(options) {
                 width = value;
                 newBoard(width,height);
                 newTable(width,height);
-                console.log("change grid width to " + value);
             }
         }
     };
