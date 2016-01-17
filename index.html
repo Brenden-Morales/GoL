@@ -10,6 +10,7 @@
     <script src="js/tableRenderer.js" type="text/javascript"></script>
     <script src="js/neighbor.js" type="text/javascript"></script>
     <script src="js/alive.js" type="text/javascript"></script>
+    <script src="js/opacity.js" type="text/javascript"></script>
     <script src="js/ui.js" type="text/javascript"></script>
 </head>
 <body class="fullSize board">
@@ -75,12 +76,16 @@
     });
 
     function cellClick(x,y){
-        board.setState(x,y,"alive",!board.getCell(x,y)["alive"]);
+        var alive = !board.getCell(x,y)["alive"];
+        board.setState(x,y,"alive",alive);
+        board.setState(x,y,"opacity",alive? 1: null);
         renderer.render(board);
     }
 
     var living = LiveRule();
+    var opacity = OpacityRule();
     board.addRule(living);
+    board.addRule(opacity);
 
     var gui = UI({
         width : 100,

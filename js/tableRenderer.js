@@ -79,6 +79,7 @@ var TableRenderer = function(options){
                 //first do "alive"
                 if(board.getCell(x,y)["alive"]){
                     cells[x][y].style["background-color"] = "red";
+                    cells[x][y].style.opacity = board.getCell(x,y).opacity / 10;
                 }
                 //cell is dead
                 else{

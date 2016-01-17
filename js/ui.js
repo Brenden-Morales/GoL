@@ -186,7 +186,7 @@ var UI = function(options) {
     var height = options.height;
 
     var heightInput = document.getElementById("heightInput");
-    heightInput.onchange = function(e){
+    heightInput.oninput = function(e){
         if(!isNaN(this.value)){
             var value = Number(this.value);
             if(value > 0){

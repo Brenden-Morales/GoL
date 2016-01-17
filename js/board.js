@@ -55,6 +55,16 @@ var GameBoard = function(options){
         if(typeof rule.run !== "function") throw "rule.run must be a function";
         if(rule.getName === undefined) throw "rule.getName must be defined";
         if(typeof rule.getName !== "function") throw "rule.getName must be a function";
+
+        //check to see if the rule has a dependency
+        if(rule.hasDependency){
+            if(rule.dependencyName === undefined || typeof rule.dependencyName !== "string") throw "dependency name not properly specified";
+            var dependencyFound = false;
+            for(var i = 0; i < rules.length; i++){
+                if(rules[i].getName() === rule.dependencyName) dependencyFound = true;
+            }
+            if(!dependencyFound) throw "no rule of name " + rule.dependencyName + " was found";
+        }
         rules.push(rule);
     };
 
@@ -77,14 +87,16 @@ var GameBoard = function(options){
         for(var y = 0; y < height; y++){
             for(var x = 0; x < width; x++){
                 //run rules on the cell
-                rules.forEach(function(rule){
-                    var result = rule.run(currentBoard,x,y);
+                for(var i = 0; i < rules.length;i++){
+                    var rule = rules[i];
+                    //if the rule isn't dependent on a previous rule, run it on the current board
+                    var result = rule.hasDependency? rule.run(nextBoard,x,y,currentBoard[x][y][rule.getName()]) : rule.run(currentBoard,x,y);
                     //make sure the result hasn't already been populated
                     if(result.name === undefined || result.value === undefined) throw "rule isn't complete";
                     if(nextBoard[x][y][result.name] !== undefined) throw "rule has already been applied";
                     //set rule in next board
                     nextBoard[x][y][result.name] = result.value;
-                })
+                }
             }
         }
         //set the current board to the one that we've been creating
