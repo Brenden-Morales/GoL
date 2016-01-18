@@ -213,24 +213,24 @@ var UI = function(options) {
 
 
     //color selection
-    var lock = document.getElementById("lock");
+    //var lock = document.getElementById("lock");
     var lockIcon = document.getElementById("lockIcon");
     var colorDiv = document.getElementById("colorDiv");
     var colorPicker = document.getElementById("colorPicker");
 
     var colorLocked = true;
 
-    lock.onclick = function(){
-        colorLocked = !colorLocked;
-        if(!colorLocked){
-            lockIcon.className = "fa fa-unlock-alt";
-            lockIcon.title = "Lock Color"
-        }
-        else {
-            lockIcon.className = "fa fa-lock";
-            lockIcon.title = "Unlock Color";
-        }
-    };
+    //lock.onclick = function(){
+    //    colorLocked = !colorLocked;
+    //    if(!colorLocked){
+    //        lockIcon.className = "fa fa-unlock-alt";
+    //        lockIcon.title = "Lock Color"
+    //    }
+    //    else {
+    //        lockIcon.className = "fa fa-lock";
+    //        lockIcon.title = "Unlock Color";
+    //    }
+    //};
 
     var color = "#ff0000";
     self.getColor = function(){
