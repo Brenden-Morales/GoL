@@ -25,11 +25,11 @@ var UI = function(options) {
     var speedText = document.getElementById("speedText");
     var setSpeedName = function(name){
         speedText.className = null;
-        if(name === undefined)speedText.innerText = speedNames[playSpeed];
-        else speedText.innerText = name;
+        if(name === undefined)speedText.innerHTML = speedNames[playSpeed];
+        else speedText.innerHTML = name;
         setTimeout(function(){
             speedText.className = "fade-out";
-        },1);
+        },100);
     };
 
     self.getFrameDelay = function(){
