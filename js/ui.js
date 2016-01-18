@@ -186,6 +186,7 @@ var UI = function(options) {
     var height = options.height;
 
     var heightInput = document.getElementById("heightInput");
+    heightInput.value = height;
     heightInput.oninput = function(e){
         if(!isNaN(this.value)){
             var value = Number(this.value);
@@ -198,6 +199,7 @@ var UI = function(options) {
     };
 
     var widthInput = document.getElementById("widthInput");
+    widthInput.value = width;
     widthInput.oninput = function(e){
         if(!isNaN(this.value)){
             var value = Number(this.value);

@@ -76,15 +76,18 @@
 </body>
 <script>
 
+    var horizontalCells = Math.round(document.body.clientWidth / 15);
+    var verticalCells = Math.round(document.body.clientHeight / 15);
+
     var board = GameBoard({
-        width :100,
-        height:100
+        width :horizontalCells,
+        height:verticalCells
     });
 
     var renderer = new TableRenderer({
         element : document.getElementById("gameBoard"),
-        width : 100,
-        height : 100,
+        width : horizontalCells,
+        height : verticalCells,
         click : cellClick
     });
 
@@ -104,8 +107,8 @@
     board.addRule(color);
 
     var gui = UI({
-        width : 100,
-        height : 100,
+        width : horizontalCells,
+        height : verticalCells,
         clearBoard : board.clearBoard,
         render : function(){renderer.render(board)},
         newTable : renderer.makeNewTable,
