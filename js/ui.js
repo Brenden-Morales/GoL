@@ -19,7 +19,7 @@ var UI = function(options) {
     //keeping track of UI state
     var playSpeed = 2;
     var speedOptions = [2000,1000,500,250,125,0];
-    var speedNames = ["1/4 X", "1/2 X", "1X", "2X","4X","MAX"]
+    var speedNames = ["1/4 X", "1/2 X", "1X", "2X","4X","MAX"];
     var playState = "paused";
 
     var speedText = document.getElementById("speedText");
@@ -209,6 +209,39 @@ var UI = function(options) {
         }
     };
 
+
+    //color selection
+    var lock = document.getElementById("lock");
+    var lockIcon = document.getElementById("lockIcon");
+    var colorDiv = document.getElementById("colorDiv");
+    var colorPicker = document.getElementById("colorPicker");
+
+    var colorLocked = true;
+
+    lock.onclick = function(){
+        colorLocked = !colorLocked;
+        if(!colorLocked){
+            lockIcon.className = "fa fa-unlock-alt";
+            lockIcon.title = "Lock Color"
+        }
+        else {
+            lockIcon.className = "fa fa-lock";
+            lockIcon.title = "Unlock Color";
+        }
+    };
+
+    var color = "#ff0000";
+    self.getColor = function(){
+        return color;
+    };
+    colorDiv.onclick = function(){
+        colorPicker.click();
+    };
+    colorPicker.onchange = function(){
+        console.log("color picker changed");
+        color = this.value;
+        colorDiv.style["background-color"] = color;
+    };
 
 
     return self;

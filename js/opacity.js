@@ -11,8 +11,9 @@ var OpacityRule = function(options){
     var name = "opacity";
     self.getName = function(){return name;};
 
-    self.run = function(board,x,y,previousValue){
+    self.run = function(board,x,y,previousBoard){
         var opacity = 0;
+        var previousValue = previousBoard[x][y][name];
         if(board[x][y][self.dependencyName]){
             if(previousValue === undefined)
                 opacity = 1;

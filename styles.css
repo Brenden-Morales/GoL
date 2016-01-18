@@ -79,7 +79,20 @@
     pointer-events:none;
 }
 
+.colorPicker{
+    pointer-events:all;
+    width:1px;
+    height:1px;
+    cursor:pointer;
+}
+
 @-webkit-keyframes fadeOut {
+    to {
+        opacity: 0;
+    }
+}
+
+@-moz-keyframes fadeOut {
     to {
         opacity: 0;
     }
@@ -96,14 +109,26 @@
     animation: fadeOut .5s ease-in 1 forwards;
 }
 
+.alive{
+    border:1px solid black;
+    padding:0;
+    margin:0;
+}
 
 html{
     font-family: 'Roboto', sans-serif;
 }
 
 table{
-    border-collapse:collapse;
+    /*border-collapse:collapse;*/
+    border-spacing:0px;
+}
+tr{
+    margin:0;
+    padding:0;
 }
 td{
     border: 1px solid #eee;
+    padding:0px;
+    margin:0px;
 }

@@ -78,15 +78,27 @@ var TableRenderer = function(options){
             for(var y = 0; y < height; y++){
                 //first do "alive"
                 if(board.getCell(x,y)["alive"]){
-                    cells[x][y].style["background-color"] = "red";
-                    cells[x][y].style.opacity = board.getCell(x,y).opacity / 10;
+                    var rgb = hexToRGB(board.getCell(x,y).color);
+                    cells[x][y].style["background-color"] = "rgba(" + rgb[0] +"," + rgb[1] + "," + rgb[2] + "," + (board.getCell(x,y).opacity / 10) + ")";
+                    cells[x][y].className = "alive";
                 }
                 //cell is dead
                 else{
                     cells[x][y].style["background-color"] = null;
+                    cells[x][y].className = null;
                 }
             }
         }
+    };
+
+    //shamelessly stolen from
+    //http://www.javascripter.net/faq/hextorgb.htm
+    var hexToRGB = function(color){
+        function hexToR(h) {return parseInt((cutHex(h)).substring(0,2),16)}
+        function hexToG(h) {return parseInt((cutHex(h)).substring(2,4),16)}
+        function hexToB(h) {return parseInt((cutHex(h)).substring(4,6),16)}
+        function cutHex(h) {return (h.charAt(0)=="#") ? h.substring(1,7):h}
+        return [hexToR(color),hexToG(color),hexToB(color)];
     };
 
     return self;

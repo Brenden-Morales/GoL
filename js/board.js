@@ -90,7 +90,7 @@ var GameBoard = function(options){
                 for(var i = 0; i < rules.length;i++){
                     var rule = rules[i];
                     //if the rule isn't dependent on a previous rule, run it on the current board
-                    var result = rule.hasDependency? rule.run(nextBoard,x,y,currentBoard[x][y][rule.getName()]) : rule.run(currentBoard,x,y);
+                    var result = rule.hasDependency? rule.run(nextBoard,x,y,currentBoard) : rule.run(currentBoard,x,y);
                     //make sure the result hasn't already been populated
                     if(result.name === undefined || result.value === undefined) throw "rule isn't complete";
                     if(nextBoard[x][y][result.name] !== undefined) throw "rule has already been applied";
